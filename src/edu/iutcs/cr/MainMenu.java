@@ -8,6 +8,15 @@ import java.util.Scanner;
  */
 public class MainMenu {
 
+    private static final int MIN_OPTION = 1;
+    private static final int MAX_OPTION = 9;
+
+    private final Scanner scanner;
+
+    public MainMenu(Scanner scanner) {
+        this.scanner = scanner;
+    }
+
     private void showMenu() {
         System.out.println("Please enter the type of vehicle [1-9]: ");
         System.out.println("1. Add new seller");
@@ -26,16 +35,21 @@ public class MainMenu {
     }
 
     public int showAndSelectOperation() {
-        Scanner scanner = new Scanner(System.in);
         showMenu();
+
         int selectedOperation = -1;
-
-        while(selectedOperation<1 || selectedOperation>9) {
+        while (selectedOperation < MIN_OPTION || selectedOperation > MAX_OPTION) {
             System.out.print("Enter your choice: ");
-            selectedOperation = scanner.nextInt();
+            String input = scanner.nextLine();
 
-            if(selectedOperation<1 || selectedOperation>9) {
-                System.out.print("Enter a valid operation: ");
+            try {
+                selectedOperation = Integer.parseInt(input.trim());
+            } catch (NumberFormatException e) {
+                selectedOperation = -1;
+            }
+
+            if (selectedOperation < MIN_OPTION || selectedOperation > MAX_OPTION) {
+                System.out.println("Enter a valid operation (" + MIN_OPTION + "-" + MAX_OPTION + ").");
             }
         }
 

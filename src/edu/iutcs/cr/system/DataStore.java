@@ -4,7 +4,6 @@ import edu.iutcs.cr.Invoice;
 import edu.iutcs.cr.persons.Buyer;
 import edu.iutcs.cr.persons.Seller;
 import edu.iutcs.cr.vehicles.Vehicle;
-
 import java.io.*;
 import java.util.HashSet;
 import java.util.Set;

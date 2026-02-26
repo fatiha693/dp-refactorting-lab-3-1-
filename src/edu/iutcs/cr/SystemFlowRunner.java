@@ -4,7 +4,6 @@ import edu.iutcs.cr.persons.Buyer;
 import edu.iutcs.cr.persons.Seller;
 import edu.iutcs.cr.system.SystemDatabase;
 import edu.iutcs.cr.vehicles.*;
-
 import java.util.Scanner;
 
 /**
@@ -20,7 +19,8 @@ public class SystemFlowRunner {
         SystemDatabase database = SystemDatabase.getInstance();
         System.out.println("Existing system loaded");
 
-        MainMenu mainMenu = new MainMenu();
+        Scanner scanner = new Scanner(System.in);
+        MainMenu mainMenu = new MainMenu(scanner);
 
         while (true) {
             System.out.println("\n\n\n");
@@ -32,141 +32,167 @@ public class SystemFlowRunner {
                 return;
             }
 
-            if (selectedOperation == 1) {
-                System.out.println("\n\n\nAdd new seller");
-                database.getSellers().add(new Seller());
-                promptToViewMainMenu();
-            } else if (selectedOperation == 2) {
-                System.out.println("\n\n\nAdd new customer");
-                database.getBuyers().add(new Buyer());
-                promptToViewMainMenu();
-            } else if (selectedOperation == 3) {
-                System.out.println("\n\n\nAdd new vehicle");
-                addCar();
-                promptToViewMainMenu();
-            } else if (selectedOperation == 4) {
-                System.out.println("\n\n\nInventory list");
-                database.showInventory();
-                promptToViewMainMenu();
-            } else if (selectedOperation == 5) {
-                System.out.println("\n\n\nSeller's list");
-                database.showSellerList();
-                promptToViewMainMenu();
-            } else if (selectedOperation == 6) {
-                System.out.println("\n\n\nCustomer's list");
-                database.showBuyerList();
-                promptToViewMainMenu();
-            } else if (selectedOperation == 7) {
-                System.out.println("\n\n\nCreate order");
-                createOrder();
-            } else if(selectedOperation==8) {
-                System.out.println("\n\n\nInvoice list");
-                database.showInvoices();
-                promptToViewMainMenu();
-            }
+            handleMainMenuOperation(selectedOperation, database, scanner);
         }
     }
 
-    private static void promptToViewMainMenu() {
-        System.out.print("\n\nEnter 0 to view main menu: ");
+    private static void handleMainMenuOperation(int op, SystemDatabase database, Scanner scanner) {
+        switch (op) {
+            case 1 -> addSeller(database);
+            case 2 -> addBuyer(database);
+            case 3 -> addCar(database, scanner);
+            case 4 -> showInventory(database);
+            case 5 -> showSellerList(database);
+            case 6 -> showBuyerList(database);
+            case 7 -> createOrder(database, scanner);
+            case 8 -> showInvoices(database);
+            default -> System.out.println("Invalid operation.");
+        }
 
-        Scanner scanner = new Scanner(System.in);
-        int val = -1;
+        // in original flow, most operations go back to main menu after "press 0"
+        if (op != 7 && op != 9 && op >= 1 && op <= 8) {
+            promptToViewMainMenu(scanner);
+        }
+    }
+
+    private static void addSeller(SystemDatabase database) {
+        System.out.println("\n\n\nAdd new seller");
+        database.getSellers().add(new Seller());
+    }
+
+    private static void addBuyer(SystemDatabase database) {
+        System.out.println("\n\n\nAdd new customer");
+        database.getBuyers().add(new Buyer());
+    }
+
+    private static void showInventory(SystemDatabase database) {
+        System.out.println("\n\n\nInventory list");
+        database.showInventory();
+    }
+
+    private static void showSellerList(SystemDatabase database) {
+        System.out.println("\n\n\nSeller's list");
+        database.showSellerList();
+    }
+
+    private static void showBuyerList(SystemDatabase database) {
+        System.out.println("\n\n\nCustomer's list");
+        database.showBuyerList();
+    }
+
+    private static void showInvoices(SystemDatabase database) {
+        System.out.println("\n\n\nInvoice list");
+        database.showInvoices();
+    }
+
+    private static void promptToViewMainMenu(Scanner scanner) {
+        System.out.print("\n\nEnter 0 to view main menu: ");
+        int val;
 
         do {
+            while (!scanner.hasNextInt()) {
+                scanner.nextLine();
+                System.out.print("Enter 0 to view main menu: ");
+            }
             val = scanner.nextInt();
+            scanner.nextLine(); // consume newline
         } while (val != 0);
     }
 
-    private static void addCar() {
-        Scanner scanner = new Scanner(System.in);
-        SystemDatabase database = SystemDatabase.getInstance();
+    private static void addCar(SystemDatabase database, Scanner scanner) {
+        System.out.println("\n\n\nAdd new vehicle");
 
-        System.out.println("Please enter the type of vehicle [1-6]: ");
+        System.out.println("Please enter the type of vehicle [1-5]: ");
         System.out.println("1. Bus");
         System.out.println("2. Car");
         System.out.println("3. Hatchback");
         System.out.println("4. Sedan");
         System.out.println("5. SUV");
 
-        int vehicleType = -1;
-        while(vehicleType<1 || vehicleType>5) {
-            System.out.print("Enter your choice: ");
-            vehicleType = scanner.nextInt();
+        int vehicleType = readIntInRange(scanner, "Enter your choice: ", 1, 5);
 
-            if(vehicleType<1 || vehicleType>5) {
-                System.out.println("Enter a valid vehicle type!");
-            }
-        }
-
-        Vehicle newItem = null;
-
-        if (vehicleType == 1) {
-            System.out.println("\n\nCreate new bus");
-            newItem = new Bus();
-        } else if (vehicleType == 2) {
-            System.out.println("\n\nCreate new car");
-            newItem = new Car();
-        } else if (vehicleType == 3) {
-            System.out.println("\n\nCreate new hatchback");
-            newItem = new Hatchback();
-        } else if (vehicleType == 4) {
-            System.out.println("\n\nCreate new sedan");
-            newItem = new Sedan();
-        } else {
-            System.out.println("\n\nCreate new SUV");
-            newItem = new SUV();
-        }
+        Vehicle newItem = createVehicleByType(vehicleType);
 
         database.getVehicles().add(newItem);
     }
 
-    private static void createOrder() {
-        Scanner scanner = new Scanner(System.in);
-        SystemDatabase systemDatabase = SystemDatabase.getInstance();
+    private static Vehicle createVehicleByType(int vehicleType) {
+        return switch (vehicleType) {
+            case 1 -> {
+                System.out.println("\n\nCreate new bus");
+                yield new Bus();
+            }
+            case 2 -> {
+                System.out.println("\n\nCreate new car");
+                yield new Car();
+            }
+            case 3 -> {
+                System.out.println("\n\nCreate new hatchback");
+                yield new Hatchback();
+            }
+            case 4 -> {
+                System.out.println("\n\nCreate new sedan");
+                yield new Sedan();
+            }
+            default -> {
+                System.out.println("\n\nCreate new SUV");
+                yield new SUV();
+            }
+        };
+    }
+
+    private static void createOrder(SystemDatabase systemDatabase, Scanner scanner) {
+        System.out.println("\n\n\nCreate order");
+
         ShoppingCart cart = new ShoppingCart();
 
         while (true) {
-            int selectedOperation = -1;
+            printOrderMenu();
 
-            System.out.println("Please enter the type of operation: [1-5]");
-            System.out.println("1. Add new vehicle to cart");
-            System.out.println("2. Remove vehicle from cart");
-            System.out.println("3. View cart");
-            System.out.println("4. Confirm purchase");
-            System.out.println();
-            System.out.println("5. Return to main menu");
+            int selectedOperation = readIntInRange(scanner, "Enter your choice: ", 1, 5);
 
-            selectedOperation = scanner.nextInt();
-
-            while (selectedOperation < 1 || selectedOperation > 5) {
-                System.out.print("Please select a valid operation: ");
-                selectedOperation = scanner.nextInt();
-            }
-
-            if (selectedOperation == 1) {
-                cart.addItem();
-            } else if (selectedOperation == 2) {
-                cart.removeItem();
-            } else if (selectedOperation == 3) {
-                cart.viewCart();
-            } else if (selectedOperation == 4) {
-                createInvoice(cart);
-                return;
-            } else {
-                return;
+            switch (selectedOperation) {
+                case 1 -> cart.addItem();
+                case 2 -> cart.removeItem();
+                case 3 -> cart.viewCart();
+                case 4 -> {
+                    createInvoice(systemDatabase, scanner, cart);
+                    promptToViewMainMenu(scanner);
+                    return;
+                }
+                case 5 -> {
+                    // return to main menu
+                    return;
+                }
+                default -> {
+                    // unreachable because readIntInRange enforces range
+                }
             }
         }
     }
 
-    private static void createInvoice(ShoppingCart cart) {
-        Scanner scanner = new Scanner(System.in);
-        SystemDatabase database = SystemDatabase.getInstance();
+    private static void printOrderMenu() {
+        System.out.println("Please enter the type of operation: [1-5]");
+        System.out.println("1. Add new vehicle to cart");
+        System.out.println("2. Remove vehicle from cart");
+        System.out.println("3. View cart");
+        System.out.println("4. Confirm purchase");
+        System.out.println();
+        System.out.println("5. Return to main menu");
+    }
 
+    private static void createInvoice(SystemDatabase database, Scanner scanner, ShoppingCart cart) {
+        Buyer buyer = readExistingBuyer(database, scanner);
+        Seller seller = readExistingSeller(database, scanner);
+
+        Invoice invoice = new Invoice(buyer, seller, cart);
+        invoice.printInvoice();
+        database.getInvoices().add(invoice);
+    }
+
+    private static Buyer readExistingBuyer(SystemDatabase database, Scanner scanner) {
         Buyer buyer = null;
-        Seller seller = null;
-
-        do {
+        while (buyer == null) {
             System.out.print("Enter buyer id: ");
             String buyerId = scanner.nextLine();
             buyer = database.findBuyerById(buyerId);
@@ -174,9 +200,13 @@ public class SystemFlowRunner {
             if (buyer == null) {
                 System.out.println("Buyer not found. Try again!");
             }
-        } while (buyer == null);
+        }
+        return buyer;
+    }
 
-        do {
+    private static Seller readExistingSeller(SystemDatabase database, Scanner scanner) {
+        Seller seller = null;
+        while (seller == null) {
             System.out.print("Enter seller id: ");
             String sellerId = scanner.nextLine();
             seller = database.findSellerById(sellerId);
@@ -184,10 +214,29 @@ public class SystemFlowRunner {
             if (seller == null) {
                 System.out.println("Seller not found. Try again!");
             }
-        } while (seller == null);
+        }
+        return seller;
+    }
 
-        Invoice invoice = new Invoice(buyer, seller, cart);
-        invoice.printInvoice();
-        database.getInvoices().add(invoice);
+    private static int readIntInRange(Scanner scanner, String prompt, int min, int max) {
+        while (true) {
+            System.out.print(prompt);
+
+            while (!scanner.hasNextInt()) {
+                scanner.nextLine();
+                System.out.println("Please enter a number.");
+                System.out.print(prompt);
+            }
+
+            int value = scanner.nextInt();
+            scanner.nextLine(); // consume newline
+
+            if (value < min || value > max) {
+                System.out.println("Enter a valid option (" + min + "-" + max + ").");
+                continue;
+            }
+
+            return value;
+        }
     }
 }
