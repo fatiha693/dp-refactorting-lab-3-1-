@@ -38,6 +38,7 @@ public class MainMenu {
         showMenu();
 
         int selectedOperation = -1;
+
         while (selectedOperation < MIN_OPTION || selectedOperation > MAX_OPTION) {
             System.out.print("Enter your choice: ");
             String input = scanner.nextLine();

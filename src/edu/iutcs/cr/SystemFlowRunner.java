@@ -19,7 +19,7 @@ public class SystemFlowRunner {
         SystemDatabase database = SystemDatabase.getInstance();
         System.out.println("Existing system loaded");
 
-        Scanner scanner = InputReader.SCANNER;
+        Scanner scanner = new Scanner(System.in);
         MainMenu mainMenu = new MainMenu(scanner);
 
         while (true) {
@@ -38,8 +38,8 @@ public class SystemFlowRunner {
 
     private static void handleMainMenuOperation(int op, SystemDatabase database, Scanner scanner) {
         switch (op) {
-            case 1 -> addSeller(database);
-            case 2 -> addBuyer(database);
+            case 1 -> addSeller(database, scanner);
+            case 2 -> addBuyer(database, scanner);
             case 3 -> addCar(database, scanner);
             case 4 -> showInventory(database);
             case 5 -> showSellerList(database);
@@ -49,20 +49,51 @@ public class SystemFlowRunner {
             default -> System.out.println("Invalid operation.");
         }
 
-        // in original flow, most operations go back to main menu after "press 0"
-        if (op != 7 && op != 9 && op >= 1 && op <= 8) {
+        if (op != 7 && op >= 1 && op <= 8) {
             promptToViewMainMenu(scanner);
         }
     }
 
-    private static void addSeller(SystemDatabase database) {
+    private static void addSeller(SystemDatabase database, Scanner scanner) {
         System.out.println("\n\n\nAdd new seller");
-        database.getSellers().add(new Seller());
+
+        // if you refactored Person to remove Scanner, you must collect these here
+        String id = readNonBlank(scanner, "Enter seller id: ");
+        String name = readNonBlank(scanner, "Enter seller name: ");
+        String email = readNonBlank(scanner, "Enter seller email: ");
+
+        Seller seller = new Seller(id);
+
+        // these setters exist only if you refactored Person to accept parameters
+        // if your Person class still uses old interactive setters, you can remove these 2 lines
+        seller.setName(name);
+        seller.setEmail(email);
+
+        database.getSellers().add(seller);
+        System.out.println("Seller added.");
     }
 
-    private static void addBuyer(SystemDatabase database) {
+    private static void addBuyer(SystemDatabase database, Scanner scanner) {
         System.out.println("\n\n\nAdd new customer");
-        database.getBuyers().add(new Buyer());
+
+        // collect buyer details here (UI layer), not inside Buyer class
+        String id = readNonBlank(scanner, "Enter buyer id: ");
+        String name = readNonBlank(scanner, "Enter buyer name: ");
+        String email = readNonBlank(scanner, "Enter buyer email: ");
+        String paymentMethod = readNonBlank(scanner, "Enter payment method: ");
+
+        Buyer buyer = new Buyer(id);
+
+        // these setters exist only if you refactored Person to accept parameters
+        // if your Person class still uses old interactive setters, you can remove these 2 lines
+        buyer.setName(name);
+        buyer.setEmail(email);
+
+        // this is the missing line you said you can't find anywhere
+        buyer.setPaymentMethod(paymentMethod);
+
+        database.getBuyers().add(buyer);
+        System.out.println("Buyer added.");
     }
 
     private static void showInventory(SystemDatabase database) {
@@ -110,10 +141,10 @@ public class SystemFlowRunner {
         System.out.println("5. SUV");
 
         int vehicleType = readIntInRange(scanner, "Enter your choice: ", 1, 5);
-
         Vehicle newItem = createVehicleByType(vehicleType);
 
         database.getVehicles().add(newItem);
+        System.out.println("Vehicle added.");
     }
 
     private static Vehicle createVehicleByType(int vehicleType) {
@@ -148,7 +179,6 @@ public class SystemFlowRunner {
 
         while (true) {
             printOrderMenu();
-
             int selectedOperation = readIntInRange(scanner, "Enter your choice: ", 1, 5);
 
             switch (selectedOperation) {
@@ -161,11 +191,9 @@ public class SystemFlowRunner {
                     return;
                 }
                 case 5 -> {
-                    // return to main menu
                     return;
                 }
                 default -> {
-                    // unreachable because readIntInRange enforces range
                 }
             }
         }
@@ -193,10 +221,8 @@ public class SystemFlowRunner {
     private static Buyer readExistingBuyer(SystemDatabase database, Scanner scanner) {
         Buyer buyer = null;
         while (buyer == null) {
-            System.out.print("Enter buyer id: ");
-            String buyerId = scanner.nextLine();
+            String buyerId = readNonBlank(scanner, "Enter buyer id: ");
             buyer = database.findBuyerById(buyerId);
-
             if (buyer == null) {
                 System.out.println("Buyer not found. Try again!");
             }
@@ -207,10 +233,8 @@ public class SystemFlowRunner {
     private static Seller readExistingSeller(SystemDatabase database, Scanner scanner) {
         Seller seller = null;
         while (seller == null) {
-            System.out.print("Enter seller id: ");
-            String sellerId = scanner.nextLine();
+            String sellerId = readNonBlank(scanner, "Enter seller id: ");
             seller = database.findSellerById(sellerId);
-
             if (seller == null) {
                 System.out.println("Seller not found. Try again!");
             }
@@ -237,6 +261,17 @@ public class SystemFlowRunner {
             }
 
             return value;
+        }
+    }
+
+    private static String readNonBlank(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine();
+            if (input != null && !input.trim().isEmpty()) {
+                return input.trim();
+            }
+            System.out.println("This field is mandatory. Try again.");
         }
     }
 }
