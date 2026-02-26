@@ -19,7 +19,7 @@ public class SystemFlowRunner {
         SystemDatabase database = SystemDatabase.getInstance();
         System.out.println("Existing system loaded");
 
-        Scanner scanner = new Scanner(System.in);
+        Scanner scanner = InputReader.SCANNER;
         MainMenu mainMenu = new MainMenu(scanner);
 
         while (true) {
