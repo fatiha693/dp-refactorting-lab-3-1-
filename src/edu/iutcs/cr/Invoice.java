@@ -5,7 +5,6 @@ import edu.iutcs.cr.persons.Seller;
 import edu.iutcs.cr.vehicles.Vehicle;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Scanner;
 
 /**
  * @author Raian Rahmana
@@ -37,11 +36,10 @@ public class Invoice implements Serializable {
         this.shoppingCart.viewCart();
     }
 
-    public void takePayment() {
-        Scanner scanner = new Scanner(System.in);
-
+    private void takePayment() {
         System.out.print("Is payment done (true/false): ");
-        this.isPaid = scanner.nextBoolean();
+        this.isPaid = InputReader.SCANNER.nextBoolean();
+        InputReader.SCANNER.nextLine();
     }
 
     private void markCarAsUnavailable() {

@@ -1,13 +1,12 @@
 package edu.iutcs.cr.vehicles;
 
-import java.io.Serializable;
-import java.util.Scanner;
+import edu.iutcs.cr.InputReader;
 
 /**
  * @author Raian Rahman
  * @since 4/19/2024
  */
-public class SUV extends Vehicle implements Serializable {
+public class SUV extends Vehicle {
 
     private boolean isOffRoad;
 
@@ -23,9 +22,9 @@ public class SUV extends Vehicle implements Serializable {
     }
 
     public void setOffRoad() {
-        Scanner scanner = new Scanner(System.in);
         System.out.print("Is the SUV for off-road use? (true/false): ");
-        this.isOffRoad = scanner.nextBoolean();
+        this.isOffRoad = InputReader.SCANNER.nextBoolean();
+        InputReader.SCANNER.nextLine();
     }
 
     @Override

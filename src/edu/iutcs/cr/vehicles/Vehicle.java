@@ -1,8 +1,8 @@
 package edu.iutcs.cr.vehicles;
 
+import edu.iutcs.cr.InputReader;
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.Scanner;
 
 /**
  * @author Raian Rahman
@@ -35,10 +35,9 @@ public class Vehicle implements Serializable {
     }
 
     public void setRegistrationNumber() {
-        Scanner scanner = new Scanner(System.in);
         while (this.registrationNumber == null || registrationNumber.isBlank()) {
             System.out.print("Enter registration number: ");
-            this.registrationNumber = scanner.nextLine();
+            this.registrationNumber = InputReader.SCANNER.nextLine();
 
             if (registrationNumber == null || registrationNumber.isBlank()) {
                 System.out.println("Registration number is mandatory!");
@@ -51,11 +50,9 @@ public class Vehicle implements Serializable {
     }
 
     public void setMake() {
-        Scanner scanner = new Scanner(System.in);
-
         while (this.make == null || this.make.isBlank()) {
             System.out.print("Enter make: ");
-            this.make = scanner.nextLine();
+            this.make = InputReader.SCANNER.nextLine();
 
             if (make == null || make.isBlank()) {
                 System.out.println("Make is mandatory!");
@@ -68,11 +65,9 @@ public class Vehicle implements Serializable {
     }
 
     public void setModel() {
-        Scanner scanner = new Scanner(System.in);
-
         while (this.model == null || this.model.isBlank()) {
             System.out.print("Enter model: ");
-            this.model = scanner.nextLine();
+            this.model = InputReader.SCANNER.nextLine();
 
             if (model == null || model.isBlank()) {
                 System.out.println("Model is mandatory!");
@@ -85,11 +80,9 @@ public class Vehicle implements Serializable {
     }
 
     public void setYear() {
-        Scanner scanner = new Scanner(System.in);
-
         while (this.year == null || this.year.isBlank()) {
             System.out.print("Enter year: ");
-            this.year = scanner.nextLine();
+            this.year = InputReader.SCANNER.nextLine();
 
             if (year == null || year.isBlank()) {
                 System.out.println("Year is mandatory!");
@@ -102,9 +95,9 @@ public class Vehicle implements Serializable {
     }
 
     public void setPrice() {
-        Scanner scanner = new Scanner(System.in);
         System.out.print("Enter price: ");
-        this.price = scanner.nextDouble();
+        this.price = InputReader.SCANNER.nextDouble();
+        InputReader.SCANNER.nextLine();
     }
 
     public boolean isAvailable() {

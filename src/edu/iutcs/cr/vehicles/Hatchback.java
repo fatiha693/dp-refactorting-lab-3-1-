@@ -1,6 +1,6 @@
 package edu.iutcs.cr.vehicles;
 
-import java.util.Scanner;
+import edu.iutcs.cr.InputReader;
 
 /**
  * @author Raian Rahman
@@ -20,9 +20,9 @@ public class Hatchback extends Vehicle {
     }
 
     public void setCompact() {
-        Scanner scanner = new Scanner(System.in);
         System.out.print("Is the hatchback compact? (true/false): ");
-        this.isCompact = scanner.nextBoolean();
+        this.isCompact = InputReader.SCANNER.nextBoolean();
+        InputReader.SCANNER.nextLine();
     }
 
     @Override
